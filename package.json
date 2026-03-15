@@ -24,7 +24,7 @@
   "bugs": {
     "url": "https://github.com/sendwithxmit/lightpanda-serverless/issues"
   },
-  "license": "AGPL-3.0",
+  "license": "MIT",
   "author": "sendwithxmit",
   "type": "module",
   "main": "./build/cjs/index.js",
