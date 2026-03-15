@@ -141,7 +141,7 @@ export const DEFAULT_CONFIG: Omit<ResolvedCrawlConfig, "url"> = {
   timeBudget: 55_000,
   render: true,
   obeyRobots: true,
-  extractMetadata: true,
+  extractMetadata: false,
   includeSubdomains: false,
   includeExternalLinks: false,
   includePatterns: [],
