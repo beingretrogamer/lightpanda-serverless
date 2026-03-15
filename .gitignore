@@ -4,3 +4,5 @@ bin/x64/*.br
 bin/arm64/*.br
 *.tgz
 .vercel/
+.DS_Store
+.DS_Store

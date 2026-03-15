@@ -29,6 +29,17 @@
         "types": "./build/cjs/index.d.ts",
         "default": "./build/cjs/index.cjs"
       }
+    },
+    "./crawler": {
+      "types": "./build/esm/crawler/index.d.ts",
+      "import": {
+        "types": "./build/esm/crawler/index.d.ts",
+        "default": "./build/esm/crawler/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/crawler/index.d.ts",
+        "default": "./build/cjs/crawler/index.cjs"
+      }
     }
   },
   "types": "./build/esm/index.d.ts",

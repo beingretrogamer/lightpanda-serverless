@@ -194,3 +194,5 @@ class Lightpanda {
 }
 
 export default Lightpanda;
+
+export * from "./crawler/index.js";
