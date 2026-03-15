@@ -3,7 +3,7 @@
     "api/**/*.ts": {
       "memory": 1024,
       "maxDuration": 60,
-      "includeFiles": "node_modules/@lightpanda/serverless/bin/**"
+      "includeFiles": "node_modules/@sendwithxmit/serverless-agent-browser/bin/**"
     }
   }
 }

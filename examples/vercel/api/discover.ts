@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { discoverSitemaps } from "@lightpanda/serverless/crawler";
+import { discoverSitemaps } from "@sendwithxmit/serverless-agent-browser/crawler";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const url = req.query["url"] as string;

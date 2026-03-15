@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { crawlBatch } from "@lightpanda/serverless/crawler";
-import type { CrawlConfig } from "@lightpanda/serverless/crawler";
+import { crawlBatch } from "@sendwithxmit/serverless-agent-browser/crawler";
+import type { CrawlConfig } from "@sendwithxmit/serverless-agent-browser/crawler";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {

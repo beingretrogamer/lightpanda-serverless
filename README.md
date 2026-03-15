@@ -1,4 +1,4 @@
-# @lightpanda/serverless
+# @sendwithxmit/serverless-agent-browser
 
 Run [Lightpanda](https://github.com/lightpanda-io/browser) headless browser as a serverless function on AWS Lambda, Vercel, and other Node.js serverless platforms. Includes a built-in crawler with BFS/DFS traversal, sitemap discovery, and robots.txt compliance.
 
@@ -7,7 +7,7 @@ Lightpanda is 9x less memory and 11x faster than headless Chrome. It uses a full
 ## Install
 
 ```bash
-npm install @lightpanda/serverless
+npm install @sendwithxmit/serverless-agent-browser
 ```
 
 > **Note:** Before publishing, run `npm run prepare-binary` to download and compress the Lightpanda Linux binary into the package.
@@ -17,7 +17,7 @@ npm install @lightpanda/serverless
 ### One-shot page fetch
 
 ```typescript
-import Lightpanda from "@lightpanda/serverless";
+import Lightpanda from "@sendwithxmit/serverless-agent-browser";
 
 // Fetch a page as markdown (JS-rendered, works with React/Vue/SPAs)
 const markdown = await Lightpanda.fetch("https://example.com", {
@@ -36,7 +36,7 @@ const tree = await Lightpanda.fetch("https://example.com", {
 ### Discover sitemaps
 
 ```typescript
-import { discoverSitemaps } from "@lightpanda/serverless/crawler";
+import { discoverSitemaps } from "@sendwithxmit/serverless-agent-browser/crawler";
 
 const result = await discoverSitemaps("https://example.com");
 console.log(`Found ${result.totalUrls} pages across ${result.sitemaps.length} sitemaps`);
@@ -46,7 +46,7 @@ console.log(result.urls); // [{ url, lastmod, priority, source }]
 ### Crawl multiple pages
 
 ```typescript
-import { crawlBatch } from "@lightpanda/serverless/crawler";
+import { crawlBatch } from "@sendwithxmit/serverless-agent-browser/crawler";
 
 // First batch
 let result = await crawlBatch({
@@ -69,7 +69,7 @@ while (result.cursor) {
 ### Start a CDP server (Puppeteer/Playwright)
 
 ```typescript
-import Lightpanda from "@lightpanda/serverless";
+import Lightpanda from "@sendwithxmit/serverless-agent-browser";
 
 const { wsEndpoint, kill } = await Lightpanda.serve({ port: 9222 });
 
@@ -117,7 +117,7 @@ Starts a CDP WebSocket server. Returns `{ process, wsEndpoint, host, port, kill 
 
 ## Crawler
 
-Import from `@lightpanda/serverless/crawler`.
+Import from `@sendwithxmit/serverless-agent-browser/crawler`.
 
 ### `crawlBatch(config, cursor?)`
 
@@ -218,7 +218,7 @@ import {
   isUrlAllowed,
   getCrawlDelay,
   getSitemapUrls,
-} from "@lightpanda/serverless/crawler";
+} from "@sendwithxmit/serverless-agent-browser/crawler";
 
 const content = await fetchRobotsTxt("https://example.com");
 const rules = parseRobotsTxt(content!, "MyCrawler");
@@ -239,7 +239,7 @@ The `examples/vercel/` directory contains a working Vercel app with three endpoi
     "api/**/*.ts": {
       "memory": 1024,
       "maxDuration": 60,
-      "includeFiles": "node_modules/@lightpanda/serverless/bin/**"
+      "includeFiles": "node_modules/@sendwithxmit/serverless-agent-browser/bin/**"
     }
   }
 }
@@ -268,7 +268,7 @@ curl -X POST https://your-app.vercel.app/api/crawl \
 ## AWS Lambda Deployment
 
 ```typescript
-import Lightpanda from "@lightpanda/serverless";
+import Lightpanda from "@sendwithxmit/serverless-agent-browser";
 
 export const handler = async (event) => {
   const content = await Lightpanda.fetch(event.url, {
