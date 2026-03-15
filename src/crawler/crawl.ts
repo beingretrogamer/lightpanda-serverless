@@ -282,6 +282,7 @@ async function crawlSinglePage(
       const [htmlResult, markdownResult] = await Promise.allSettled([
         config.extractMetadata ? fetchHtmlHead(url, config.pageTimeout) : Promise.resolve(null),
         Lightpanda.fetch(url, {
+          insecureTls: true,
           dump: "markdown",
           strip: config.strip,
           timeout: config.pageTimeout,

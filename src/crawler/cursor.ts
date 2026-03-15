@@ -76,17 +76,36 @@ export function decodeCursor(encoded: string): CrawlCursor {
 /**
  * Check if a URL has been visited (by hash).
  */
+// Runtime Set cache — lazily built from the cursor's visitedHashes array
+const visitedSets = new WeakMap<CrawlCursor, Set<number>>();
+
+function getVisitedSet(cursor: CrawlCursor): Set<number> {
+  let set = visitedSets.get(cursor);
+  if (!set) {
+    set = new Set(cursor.visitedHashes);
+    visitedSets.set(cursor, set);
+  }
+  return set;
+}
+
+/**
+ * Check if a URL has been visited (by hash). O(1) via Set.
+ */
 export function isVisited(cursor: CrawlCursor, url: string): boolean {
-  const hash = fnv1a(url);
-  return cursor.visitedHashes.includes(hash);
+  return getVisitedSet(cursor).has(fnv1a(url));
 }
 
 /**
  * Mark a URL as visited.
  */
+/**
+ * Mark a URL as visited. Updates both the Set (runtime) and array (serialization).
+ */
 export function addVisited(cursor: CrawlCursor, url: string): void {
   const hash = fnv1a(url);
-  if (!cursor.visitedHashes.includes(hash)) {
+  const set = getVisitedSet(cursor);
+  if (!set.has(hash)) {
+    set.add(hash);
     cursor.visitedHashes.push(hash);
   }
 }

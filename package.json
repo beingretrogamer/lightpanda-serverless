@@ -52,7 +52,8 @@
     "build:esm": "tsc -p tsconfig.build.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "prepare-binary": "node scripts/prepare-binary.mjs",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "npx tsc -p tsconfig.test.json && node build/test/tests/run.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

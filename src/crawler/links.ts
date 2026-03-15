@@ -161,7 +161,7 @@ function patternToRegex(pattern: string): RegExp {
     .replace(/[.+?^${}()|[\]\\]/g, "\\$&") // Escape regex chars
     .replace(/\*\*/g, "{{DOUBLESTAR}}") // Temp placeholder
     .replace(/\*/g, "[^/]*") // * matches anything except /
-    .replace(/\{\\{DOUBLESTAR\\}\\}/g, ".*"); // ** matches anything
+    .replace(/{{DOUBLESTAR}}/g, ".*"); // ** matches anything
 
   return new RegExp(`^${escaped}$`);
 }

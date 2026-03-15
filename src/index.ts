@@ -29,6 +29,8 @@ export interface FetchOptions {
   obeyRobots?: boolean;
   /** Strip JS and/or CSS from output. e.g. ["js", "css"] */
   strip?: string[];
+  /** Disable TLS host verification (workaround for Lambda/AL2023 cert issues) */
+  insecureTls?: boolean;
   /** Custom user agent suffix */
   userAgentSuffix?: string;
 }
@@ -110,6 +112,10 @@ class Lightpanda {
 
     if (options.strip && options.strip.length > 0) {
       args.push("--strip_mode", options.strip.join(","));
+    }
+
+    if (options.insecureTls) {
+      args.push("--insecure_disable_tls_host_verification");
     }
 
     if (options.userAgentSuffix) {

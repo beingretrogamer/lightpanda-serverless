@@ -20,6 +20,12 @@ export async function fetchRobotsTxt(domain: string): Promise<string | null> {
   }
 }
 
+interface ParsedGroup {
+  agents: string[];
+  rules: RobotsRule[];
+  crawlDelay: number | null;
+}
+
 /**
  * Parse robots.txt content into structured rules for a given user-agent.
  * Follows Google's robots.txt spec: longest match wins, group-specific rules
@@ -30,14 +36,8 @@ export function parseRobotsTxt(
   userAgent: string = "*"
 ): RobotsRules {
   const sitemaps: string[] = [];
-  const groupRules: RobotsRule[] = [];
-  const wildcardRules: RobotsRule[] = [];
-  let crawlDelay: number | null = null;
-  let wildcardCrawlDelay: number | null = null;
-
-  let currentAgents: string[] = [];
-  let inRelevantGroup = false;
-  let inWildcardGroup = false;
+  const groups: ParsedGroup[] = [];
+  let currentGroup: ParsedGroup | null = null;
 
   const ua = userAgent.toLowerCase();
 
@@ -54,52 +54,67 @@ export function parseRobotsTxt(
 
     if (/^user-agent:\s*/i.test(line)) {
       const agent = line.replace(/^user-agent:\s*/i, "").trim().toLowerCase();
-      // If we were tracking agents and hit a new User-agent block, reset
-      if (currentAgents.length > 0 && !inRelevantGroup && !inWildcardGroup) {
-        currentAgents = [];
+
+      // If previous group already has rules, start a new group
+      if (currentGroup && currentGroup.rules.length > 0) {
+        groups.push(currentGroup);
+        currentGroup = { agents: [agent], rules: [], crawlDelay: null };
+      } else if (currentGroup) {
+        // Still building agent list for current group (consecutive User-agent lines)
+        currentGroup.agents.push(agent);
+      } else {
+        currentGroup = { agents: [agent], rules: [], crawlDelay: null };
       }
-      currentAgents.push(agent);
-      inRelevantGroup = currentAgents.some(
-        (a) => a === ua || ua.includes(a) || a.includes(ua)
-      );
-      inWildcardGroup = currentAgents.includes("*");
       continue;
     }
 
+    if (!currentGroup) continue;
+
     if (/^allow:\s*/i.test(line)) {
       const pattern = line.replace(/^allow:\s*/i, "").trim();
-      if (!pattern) continue;
-      const rule: RobotsRule = { pattern, allow: true };
-      if (inRelevantGroup) groupRules.push(rule);
-      else if (inWildcardGroup) wildcardRules.push(rule);
+      if (pattern) currentGroup.rules.push({ pattern, allow: true });
       continue;
     }
 
     if (/^disallow:\s*/i.test(line)) {
       const pattern = line.replace(/^disallow:\s*/i, "").trim();
-      // Empty Disallow means allow everything
-      if (!pattern) continue;
-      const rule: RobotsRule = { pattern, allow: false };
-      if (inRelevantGroup) groupRules.push(rule);
-      else if (inWildcardGroup) wildcardRules.push(rule);
+      if (pattern) currentGroup.rules.push({ pattern, allow: false });
       continue;
     }
 
     if (/^crawl-delay:\s*/i.test(line)) {
       const delay = parseFloat(line.replace(/^crawl-delay:\s*/i, "").trim());
-      if (!isNaN(delay)) {
-        if (inRelevantGroup) crawlDelay = delay * 1000;
-        else if (inWildcardGroup) wildcardCrawlDelay = delay * 1000;
-      }
+      if (!isNaN(delay)) currentGroup.crawlDelay = delay * 1000;
       continue;
     }
   }
 
-  // Use group-specific rules if available, else fall back to wildcard
-  const rules = groupRules.length > 0 ? groupRules : wildcardRules;
-  const finalDelay = crawlDelay ?? wildcardCrawlDelay;
+  // Don't forget the last group
+  if (currentGroup && currentGroup.rules.length > 0) {
+    groups.push(currentGroup);
+  }
 
-  return { rules, crawlDelay: finalDelay, sitemaps };
+  // Find the best matching group for our user-agent
+  let matchedGroup: ParsedGroup | null = null;
+  let wildcardGroup: ParsedGroup | null = null;
+
+  for (const group of groups) {
+    for (const agent of group.agents) {
+      if (agent === "*") {
+        wildcardGroup = group;
+      } else if (agent === ua || ua.includes(agent) || agent.includes(ua)) {
+        matchedGroup = group;
+      }
+    }
+  }
+
+  const bestGroup = matchedGroup ?? wildcardGroup;
+
+  return {
+    rules: bestGroup?.rules ?? [],
+    crawlDelay: bestGroup?.crawlDelay ?? null,
+    sitemaps,
+  };
 }
 
 /**
